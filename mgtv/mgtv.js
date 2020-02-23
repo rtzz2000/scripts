@@ -1,23 +1,33 @@
-/**
- * Cookie 心跳
- * 尝试每2小时运行一次本脚本来保持Cookie的活性 (效果待验证)
- */
-
-const cookieName = '腾讯视频'
-const cookieKey = 'chavy_cookie_videoqq'
+const cookieName = '芒果TV'
+const signurlKey = 'chavy_signurl_mgtv'
+const signheaderKey = 'chavy_signheader_mgtv'
 const chavy = init()
-const cookieVal = chavy.getdata(cookieKey)
+const signurlVal = chavy.getdata(signurlKey)
+const signheaderVal = chavy.getdata(signheaderKey)
 
-keep()
+sign()
 
-function keep() {
-  const timestamp = Date.parse(new Date())
-  let url = { url: `https://vip.video.qq.com/fcgi-bin/comm_cgi?name=spp_PropertyNum&cmd=1&growth_value=1&otype=json&_=${timestamp}`, headers: { Cookie: cookieVal } }
-  url.headers['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.4 Safari/605.1.15'
-  chavy.get(url, (error, response, data) => {
-    chavy.log(`[${cookieName} 心跳], data: ${data}`)
+function sign() {
+  const url = { url: signurlVal, headers: JSON.parse(signheaderVal) }
+  url.body = '{}'
+  chavy.post(url, (error, response, data) => {
+    chavy.log(`${cookieName}, data: ${data}`)
+    const title = `${cookieName}`
+    let subTitle = ''
+    let detail = ''
+    const result = JSON.parse(data.match(/\(([^\)]*)\)/)[1])
+    if (result.code == 200) {
+      subTitle = `签到结果: 成功`
+      detail = `共签: ${result.data.curDay}天, 连签: ${result.data.curDayTotal}天, 积分: ${result.data.balance} +${result.data.credits}）`
+    } else if (result.code == 1002) {
+      subTitle = `签到结果: 成功 (重复签到)`
+    } else {
+      subTitle = `签到结果: 失败`
+      detail = `编码: ${result.code}, 说明: ${result.msg}`
+    }
+    chavy.msg(title, subTitle, detail)
+    chavy.done()
   })
-  chavy.done()
 }
 
 function init() {

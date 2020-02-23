@@ -1,47 +1,47 @@
-# 人人视频
+# 中国移动
 
 > 代码已同时兼容 Surge & QuanX, 使用同一份签到脚本即可
 
-> 2020.1.11 QuanX 在`190`版本开始, 获取 Cookie 方式需要从`script-response-body`改为`script-request-header`
-
-> 2020.1.31 增加自动领取每日福利 (无需重新获取 Cookie, 直接更新脚本即可!)
+> 注意: 中国移动是指名字为`10086`这款的 APP [点这里下载](https://apps.apple.com/cn/app/10086-%E4%B8%AD%E5%9B%BD%E7%A7%BB%E5%8A%A8%E5%87%BA%E5%93%81/id1004816017)
 
 ## 配置 (Surge)
 
 ```properties
 [MITM]
-*.rr.tv
+wx.10086.cn
 
 [Script]
-http-request ^https:\/\/api\.rr\.tv\/user\/profile script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/rrtv/rrtv.cookie.js
-cron "10 0 0 * * *" script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/rrtv/rrtv.js
+# 注意获取Cookie有两条脚本
+http-request ^http:\/\/wx.10086.cn\/website\/taskCenter\/index\? script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/10086/10086.cookie.js
+http-request ^http:\/\/wx.10086.cn\/website\/taskCenter\/sign\? script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/10086/10086.cookie.js
+cron "10 0 0 * * *" script-path=https://raw.githubusercontent.com/chavyleung/scripts/master/10086/10086.js
 ```
 
 ## 配置 (QuanX)
 
 ```properties
 [MITM]
-*.rr.tv
+wx.10086.cn
 
 [rewrite_local]
-# 189及以前版本
-^https:\/\/api\.rr\.tv\/user\/profile url script-response-body rrtv.cookie.js
-# 190及以后版本
-^https:\/\/api\.rr\.tv\/user\/profile url script-request-header rrtv.cookie.js
+# 注意获取Cookie有两条脚本
+^http:\/\/wx.10086.cn\/website\/taskCenter\/index\? url script-request-header 10086.cookie.js
+^http:\/\/wx.10086.cn\/website\/taskCenter\/sign\? url script-request-header 10086.cookie.js
 
 [task_local]
-1 0 * * * rrtv.js
+1 0 * * * 10086.js
 ```
 
 ## 说明
 
-1. 先把`*.rr.tv`加到`[MITM]`
+1. 先把`wx.10086.cn`加到`[MITM]`
 2. 再配置重写规则:
    - Surge: 把两条远程脚本放到`[Script]`
-   - QuanX: 把`rrtv.cookie.js`和`rrtv.js`传到`On My iPhone - Quantumult X - Scripts` (传到 iCloud 相同目录也可, 注意要打开 quanx 的 iCloud 开关)
-3. 打开 APP, 访问下`个人中心`
-4. 系统提示: `获取Cookie: 成功` （如果不提示获取成功, 尝试杀进程再进个人中心）
-5. 最后就可以把第 1 条脚本注释掉了
+   - QuanX: 把`10086.cookie.js`和`10086.js`传到`On My iPhone - Quantumult X - Scripts` (传到 iCloud 相同目录也可, 注意要打开 quanx 的 iCloud 开关)
+3. 打开 APP , 进入签到页面, 系统提示: `获取刷新链接: 成功`
+4. 然后手动签到 1 次, 系统提示: `获取Cookie: 成功`
+5. 把获取 Cookie 的脚本注释掉
+6. 运行一次脚本, 如果提示重复签到, 那就算成功了!
 
 > 第 1 条脚本是用来获取 cookie 的, 用浏览器访问一次获取 cookie 成功后就可以删掉或注释掉了, 但请确保在`登录成功`后再获取 cookie.
 

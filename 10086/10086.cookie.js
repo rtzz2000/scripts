@@ -1,31 +1,24 @@
-const cookieName = '字幕组'
-const cookieKey = 'chavy_cookie_zimuzu'
-const cookieAppKey = 'chavy_cookie_zimuzu_app'
-const authUrlAppKey = 'chavy_auth_url_zimuzu_app'
+const cookieName = '中国移动'
+const tokenurlKey = 'chavy_tokenurl_10086'
+const tokenheaderKey = 'chavy_tokenheader_10086'
+const signurlKey = 'chavy_signurl_10086'
+const signheaderKey = 'chavy_signheader_10086'
 const chavy = init()
-if ($request.headers.Host == 'h5.rrhuodong.com') {
-  const cookieVal = $request.headers['Cookie']
-  if (cookieVal) {
-    if (chavy.setdata(cookieVal, cookieAppKey)) {
-      chavy.setdata(``, authUrlAppKey)
-      chavy.msg(`${cookieName} (APP)`, '获取Cookie: 成功', '')
-      chavy.log(`[${cookieName} (APP)] 获取Cookie: 成功, cookie: ${cookieVal}`)
-    }
-  }
-} else if ($request.headers.Host == `ios.zmzapi.com` && $request.url.indexOf('accesskey') >= 0) {
-  if (chavy.setdata($request.url, authUrlAppKey)) {
-    chavy.setdata(``, cookieAppKey)
-    chavy.msg(`${cookieName} (APP)`, '获取Cookie: 成功', '')
-    chavy.log(`[${cookieName} (APP)] 获取Cookie: 成功, cookie: ${$request.url}`)
-  }
-} else {
-  const cookieVal = $request.headers['Cookie']
-  if (cookieVal) {
-    if (chavy.setdata(cookieVal, cookieKey)) {
-      chavy.msg(`${cookieName} (网页)`, '获取Cookie: 成功', '')
-      chavy.log(`[${cookieName} (网页)] 获取Cookie: 成功, cookie: ${cookieVal}`)
-    }
-  }
+
+const requrl = $request.url
+const reqRef = $request.headers.Referer
+if ($request && $request.method != 'OPTIONS' && requrl.indexOf('website/taskCenter/index') >= 0 && requrl.indexOf('mobile=') >= 0) {
+  const tokenurlVal = requrl
+  const tokenheaderVal = JSON.stringify($request.headers)
+  if (tokenurlVal) chavy.setdata(tokenurlVal, tokenurlKey)
+  if (tokenheaderVal) chavy.setdata(tokenheaderVal, tokenheaderKey)
+  title = chavy.msg(cookieName, `获取刷新链接: 成功`, ``)
+} else if ($request && $request.method != 'OPTIONS' && requrl.indexOf('website/taskCenter/sign') >= 0) {
+  const signurlVal = requrl
+  const signheaderVal = JSON.stringify($request.headers)
+  if (signurlVal) chavy.setdata(signurlVal, signurlKey)
+  if (signheaderVal) chavy.setdata(signheaderVal, signheaderKey)
+  title = chavy.msg(cookieName, `获取Cookie: 成功`, ``)
 }
 
 function init() {

@@ -1,31 +1,30 @@
-const cookieName = '字幕组'
-const cookieKey = 'chavy_cookie_zimuzu'
-const cookieAppKey = 'chavy_cookie_zimuzu_app'
-const authUrlAppKey = 'chavy_auth_url_zimuzu_app'
+const cookieName = '猫咪音乐网'
+const signurlKey = 'chavy_signurl_maomicd'
+const signheaderKey = 'chavy_signheader_maomicd'
 const chavy = init()
-if ($request.headers.Host == 'h5.rrhuodong.com') {
-  const cookieVal = $request.headers['Cookie']
-  if (cookieVal) {
-    if (chavy.setdata(cookieVal, cookieAppKey)) {
-      chavy.setdata(``, authUrlAppKey)
-      chavy.msg(`${cookieName} (APP)`, '获取Cookie: 成功', '')
-      chavy.log(`[${cookieName} (APP)] 获取Cookie: 成功, cookie: ${cookieVal}`)
+const signurlVal = chavy.getdata(signurlKey)
+const signheaderVal = chavy.getdata(signheaderKey)
+
+sign()
+
+function sign() {
+  const url = { url: signurlVal, headers: JSON.parse(signheaderVal) }
+  chavy.get(url, (error, response, data) => {
+    chavy.log(`${cookieName}, data: ${data}`)
+    let subTitle = ``
+    let detail = ``
+    let result = data.match(/<root>(<!\[CDATA\[(.*?)\]\]>)<\/root>/)
+    if (result) {
+      result = result[2]
+      if (result == '') subTitle = `签到结果: 成功`
+      else if (result.indexOf('今日已签') >= 0) subTitle = `签到结果: 成功 (重复签到)`
+      else (subTitle = `签到结果: 未知`), (detail = `说明: ${result}`)
+    } else {
+      subTitle = `签到结果: 失败`
     }
-  }
-} else if ($request.headers.Host == `ios.zmzapi.com` && $request.url.indexOf('accesskey') >= 0) {
-  if (chavy.setdata($request.url, authUrlAppKey)) {
-    chavy.setdata(``, cookieAppKey)
-    chavy.msg(`${cookieName} (APP)`, '获取Cookie: 成功', '')
-    chavy.log(`[${cookieName} (APP)] 获取Cookie: 成功, cookie: ${$request.url}`)
-  }
-} else {
-  const cookieVal = $request.headers['Cookie']
-  if (cookieVal) {
-    if (chavy.setdata(cookieVal, cookieKey)) {
-      chavy.msg(`${cookieName} (网页)`, '获取Cookie: 成功', '')
-      chavy.log(`[${cookieName} (网页)] 获取Cookie: 成功, cookie: ${cookieVal}`)
-    }
-  }
+    chavy.msg(cookieName, subTitle, detail)
+    chavy.done()
+  })
 }
 
 function init() {
@@ -71,4 +70,3 @@ function init() {
   }
   return { isSurge, isQuanX, msg, log, getdata, setdata, get, post, done }
 }
-chavy.done()

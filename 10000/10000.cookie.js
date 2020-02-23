@@ -1,29 +1,23 @@
-const cookieName = '字幕组'
-const cookieKey = 'chavy_cookie_zimuzu'
-const cookieAppKey = 'chavy_cookie_zimuzu_app'
-const authUrlAppKey = 'chavy_auth_url_zimuzu_app'
+const cookieName = '电信营业厅'
+const cookieKey = 'chavy_cookie_10000'
+const mobileKey = 'chavy_mobile_10000'
 const chavy = init()
-if ($request.headers.Host == 'h5.rrhuodong.com') {
-  const cookieVal = $request.headers['Cookie']
-  if (cookieVal) {
-    if (chavy.setdata(cookieVal, cookieAppKey)) {
-      chavy.setdata(``, authUrlAppKey)
-      chavy.msg(`${cookieName} (APP)`, '获取Cookie: 成功', '')
-      chavy.log(`[${cookieName} (APP)] 获取Cookie: 成功, cookie: ${cookieVal}`)
-    }
-  }
-} else if ($request.headers.Host == `ios.zmzapi.com` && $request.url.indexOf('accesskey') >= 0) {
-  if (chavy.setdata($request.url, authUrlAppKey)) {
-    chavy.setdata(``, cookieAppKey)
-    chavy.msg(`${cookieName} (APP)`, '获取Cookie: 成功', '')
-    chavy.log(`[${cookieName} (APP)] 获取Cookie: 成功, cookie: ${$request.url}`)
-  }
-} else {
+if (this.$request && this.$request.headers) {
   const cookieVal = $request.headers['Cookie']
   if (cookieVal) {
     if (chavy.setdata(cookieVal, cookieKey)) {
-      chavy.msg(`${cookieName} (网页)`, '获取Cookie: 成功', '')
-      chavy.log(`[${cookieName} (网页)] 获取Cookie: 成功, cookie: ${cookieVal}`)
+      chavy.msg(`${cookieName}`, '获取Cookie: 成功', '')
+      chavy.log(`[${cookieName}] 获取Cookie: 成功, cookie: ${cookieVal}`)
+    }
+  }
+}
+if (this.$response) {
+  chavy.log(JSON.parse($response.body).data.userInfo.mobile)
+  const mobileVal = JSON.parse($response.body).data.userInfo.mobile
+  if (mobileVal) {
+    if (chavy.setdata(mobileVal, mobileKey)) {
+      chavy.msg(`${cookieName}`, `获取号码: 成功 (${mobileVal})`, ``)
+      chavy.log(`[${cookieName}] 获取号码: 成功, 号码: ${mobileVal}`)
     }
   }
 }
